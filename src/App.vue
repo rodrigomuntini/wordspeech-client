@@ -1,26 +1,28 @@
 <template>
-  <img alt="Vue logo" src="./assets/logo.png">
-  <HelloWorld msg="Welcome to Your Vue.js App"/>
+<h1>WORDSPEECH</h1>
+<div>
+    <p>Message is: {{ message }}</p>
+<input v-model="message" placeholder="digite palavra em ingles" />
+
+</div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
-
-export default {
-  name: 'App',
-  components: {
-    HelloWorld
-  }
-}
+    export default{
+        name: 'App',
+        data() {
+            return{
+            message: ""
+            }
+        }
+    }
 </script>
 
 <style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
-}
+    body{
+        background-color: rgb(60, 175, 237);
+        color: #ffffff;
+        align-items: center;
+    }
+
 </style>
