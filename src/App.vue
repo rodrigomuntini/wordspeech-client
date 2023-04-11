@@ -1,28 +1,57 @@
 <template>
-<h1>WORDSPEECH</h1>
 <div>
-    <p>Message is: {{ message }}</p>
-<input v-model="message" placeholder="digite palavra em ingles" />
-
+    <header>
+        <h1>WordSpeech</h1>
+    </header>
 </div>
+
+<div class="container">
+    <div class="box">   
+        <LifeCycle/>
+    </div>
+</div>
+
 </template>
 
 <script>
-    export default{
-        name: 'App',
-        data() {
-            return{
-            message: ""
-            }
-        }
+import LifeCycle from './components/LifeCycle.vue';
+export default{
+    name:'App',
+    components:{
+        LifeCycle
     }
+}
+
 </script>
 
 <style>
-    body{
-        background-color: rgb(60, 175, 237);
-        color: #ffffff;
-        align-items: center;
-    }
+body{
+    background-color: #17a0e5;
+    color: #fff;
+    text-align: center;
+    font-family: sans-seri;
+    margin: 0px;
+
+}
+
+.container{
+    width: 100%;
+    height: 100%;
+    background: #17a0e5;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: row;
+
+}
+
+.box{
+    width: 800px;
+    height: 800px;
+    background-color: #fff;
+    border-radius: 10px
+
+    
+}
 
 </style>
