@@ -46,12 +46,17 @@ body{
 }
 
 .box{
-    width: 800px;
-    height: 800px;
+    width: 1200px;
+    height: 450px;
     background-color: #fff;
     border-radius: 10px
 
     
+}
+
+h1 {
+    margin-top: 30px;
+    margin-bottom: 30px;
 }
 
 </style>

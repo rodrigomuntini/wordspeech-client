@@ -2,16 +2,31 @@
     <div class="write">
         <p class="question">Qual palavra completa melhor a frase?</p>
         <div class="error-message" v-if="show_error">
-            <p>Erro: {{ error_message }}</p>
+            <p>{{ error_message }}</p>
         </div>
-        <p class="phrase">{{ sentence.phrase }}
-            <button type="button" class="microphone-button" v-on:click="toggleRecording">
-                <img src="../assets/Img/mic.png" style="width:30px;height:30px; padding-left: 25%;">
+        <p class="phrase">{{ sentence.phrase }}</p>
+
+        <p class="question">Fale a palavra correta:
+        <div class="microphone-box">
+            <button type="button" v-bind:class="{ 'recording': isRecording }" class="microphone-button"
+                v-on:click="toggleRecording">
+                <img src="../assets/Img/mic.png" style="width: 30px; margin-top: -10px;">
             </button>
+        </div>
         </p>
-        <p class="question">Escolha a palavra correta:</p>
         <button class="item" v-for="item in items"
-            v-bind:class="{ 'bg-green': is_correct && item === sentence.correct_word, 'bg-red': is_incorrect && item === current_text }">{{ item }}</button>
+            v-bind:class="{ 'bg-green': is_correct && item === sentence.correct_word, 'bg-red': is_incorrect && item === current_text }">{{
+                item }}</button>
+
+        <div class="success-message" v-if="is_correct">
+            <div class="message-text">Correto!</div>
+            <div class="progress-bar"></div>
+        </div>
+
+        <div class="wrong-message" v-if="is_incorrect">
+            <div class="message-text">Incorreto!</div>
+            <div class="wrong-progress-bar"></div>
+        </div>
     </div>
 </template>
 
@@ -25,13 +40,14 @@ export default {
     name: 'LifeCycle',
     data() {
         return {
-            items: ['table', 'join', 'force', 'cat'],
-            sentence: [],
+            items: ['...', '...', '...', '...'],
+            sentence: { 'phrase': "..." },
             show_error: false,
             error_message: "Error",
             is_correct: false,
             is_incorrect: false,
-            current_text: ""
+            current_text: "",
+            isRecording: false
         }
     },
     mounted() {
@@ -75,6 +91,9 @@ export default {
                     });
                     this.recorder.startRecording();
                     this.isRecording = true;
+
+                    this.show_error = false
+                    this.error_message = "Error"
 
                     this.stopRecordingAfterDelay(5000);
                 });
@@ -127,11 +146,10 @@ export default {
                     this.is_correct = false;
                     this.is_incorrect = true;
                     this.current_text = text;
-                    console.log(false)
                 }
             } else {
                 this.show_error = true
-                this.error_message = "Palavra não identificada"
+                this.error_message = "Erro: Palavra não identificada"
             }
         }
     },
@@ -142,29 +160,33 @@ export default {
 
 <style>
 .write {
-    padding-top: 200px;
+    padding-top: 20px;
     color: rgb(96, 100, 100);
     font-size: 40px;
 }
 
 .question {
-    font-size: 50px;
+    font-size: 30px;
 }
 
 .phrase {
+    font-size: 25px;
     border-radius: 10px;
     box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.5);
+    margin: 10px 20px;
+    font-weight: bold;
 }
 
 .item {
     flex-direction: row;
     display: inline-block;
-    margin-right: 50px;
-    font-size: 50px;
+    margin-right: 20px;
+    font-size: 30px;
     color: rgb(8, 68, 151);
     border-radius: 10px;
     box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.5);
     background-color: #fff;
+    width: 250px;
 }
 
 .microphone-button {
@@ -181,7 +203,9 @@ button {
     color: #ff0000;
     padding: 10px;
     border-radius: 5px;
-    font-size: 30px;
+    font-size: 20px;
+    margin-bottom: 20px;
+    height: 50px;
 }
 
 .bg-green {
@@ -192,5 +216,104 @@ button {
 .bg-red {
     background-color: red;
     color: white;
+}
+
+.microphone-button {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: #f44336;
+    color: #fff;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    font-size: 30px;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+.recording {
+    background-color: rgb(85, 223, 85) !important;
+}
+
+.microphone-button:hover {
+    background-color: #e53935;
+}
+
+.microphone-box {
+    width: 100%;
+    margin: auto;
+}
+
+.success-message {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100px;
+    width: 100%;
+    background-color: #a1f0c2;
+    color: #000000;
+    border-radius: 10px;
+    position: relative;
+    margin-top: 55px;
+}
+
+.message-text {
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.progress-bar {
+    position: absolute;
+    bottom: 0;
+    height: 5px;
+    width: 100%;
+    background-color: #07ce00;
+    animation: progress-bar 3s linear;
+}
+
+.wrong-message {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100px;
+    width: 100%;
+    background-color: #f0a1a1;
+    color: #000000;
+    border-radius: 10px;
+    position: relative;
+    margin-top: 55px;
+}
+
+.wrong-progress-bar {
+    position: absolute;
+    bottom: 0;
+    height: 5px;
+    width: 100%;
+    background-color: #ce0000;
+    animation: progress-bar 3s linear;
+}
+
+@keyframes progress-bar {
+    0% {
+        width: 0;
+    }
+
+    100% {
+        width: 100%;
+    }
+}
+
+@keyframes wrong-progress-bar {
+    0% {
+        width: 0;
+    }
+
+    100% {
+        width: 100%;
+    }
 }
 </style>
