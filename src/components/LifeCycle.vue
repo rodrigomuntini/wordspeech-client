@@ -7,10 +7,7 @@
         </button>
     </p>
     <p class="question">Escolha a palavra correta:</p>
-        <button class="item">{{sentence.correct_word}}</button>
-        <button class="item">table</button>
-        <button class="item">jojo</button>
-        <button class="item">baby</button>
+        <button class="item" v-for="item in items">{{ item }}</button>
     </div>
 </template>
 
@@ -24,18 +21,23 @@ export default {
     name: 'LifeCycle',
     data() {
         return {
-            phrase: "join the darkside of the ___",
             items: ['table', 'join', 'force', 'cat'],
             sentence: [],
         }
     },
     mounted() {
         $.ajax({
-        url: 'http://localhost:8000/api/sentences',
+        url: 'http://localhost:5000/api/question',
         method: 'GET',
         dataType: 'json',
         success:(data) => {
+            // Armazena a sentença (pergunta e resposta certa na variavel sentence)
             this.sentence = data[0];
+            // Armazena as alternativas nos itens
+            this.items = data[1];
+
+            // Faz o tratamento na frase da sentença para apresentar ____ em fez de $
+            this.sentence.phrase = this.sentence.phrase.replace(/\$/g, '___')
         },
         error: (error) => {
             console.log(error);
@@ -74,7 +76,7 @@ export default {
             // faça uma requisição AJAX para enviar o arquivo para o servidor
 
             $.ajax({
-                url: 'http://localhost:5000/upload',
+                url: 'http://localhost:5000/api/recognition',
                 type: 'POST',
                 data: formData,
                 processData: false,
