@@ -1,13 +1,17 @@
 <template>
     <div class="write">
         <p class="question">Qual palavra completa melhor a frase?</p>
+        <div class="error-message" v-if="show_error">
+            <p>Erro: {{ error_message }}</p>
+        </div>
         <p class="phrase">{{ sentence.phrase }}
             <button type="button" class="microphone-button" v-on:click="toggleRecording">
                 <img src="../assets/Img/mic.png" style="width:30px;height:30px; padding-left: 25%;">
             </button>
         </p>
         <p class="question">Escolha a palavra correta:</p>
-        <button class="item" v-for="item in items">{{ item }}</button>
+        <button class="item" v-for="item in items"
+            v-bind:class="{ 'bg-green': is_correct && item === sentence.correct_word, 'bg-red': is_incorrect && item === current_text }">{{ item }}</button>
     </div>
 </template>
 
@@ -23,6 +27,11 @@ export default {
         return {
             items: ['table', 'join', 'force', 'cat'],
             sentence: [],
+            show_error: false,
+            error_message: "Error",
+            is_correct: false,
+            is_incorrect: false,
+            current_text: ""
         }
     },
     mounted() {
@@ -98,13 +107,33 @@ export default {
                 contentType: false,
                 success: (data) => {
                     console.log('Arquivo enviado com sucesso!');
-                    console.log(data)
+                    this.judgeQuestion(data)
                 },
                 error: (error) => {
                     console.error('Erro ao enviar arquivo:', error);
                 },
             });
         },
+        judgeQuestion(text) {
+            if (this.items.includes(text)) { // Significa que a palavra está incluída entre as 4 opções
+                // Reseta as mensagens de erro
+                this.show_error = false
+                this.error_message = "Error"
+
+                if (text.toLowerCase() == this.sentence.correct_word.toLowerCase()) { // Verifica se valou a palavra certa
+                    this.is_correct = true;
+                    this.is_incorrect = false;
+                } else {
+                    this.is_correct = false;
+                    this.is_incorrect = true;
+                    this.current_text = text;
+                    console.log(false)
+                }
+            } else {
+                this.show_error = true
+                this.error_message = "Palavra não identificada"
+            }
+        }
     },
 }
 </script>
@@ -144,5 +173,24 @@ export default {
 
 button {
     cursor: pointer;
+}
+
+.error-message {
+    background-color: #ffcccc;
+    border: 2px solid #ff0000;
+    color: #ff0000;
+    padding: 10px;
+    border-radius: 5px;
+    font-size: 30px;
+}
+
+.bg-green {
+    background-color: green;
+    color: white;
+}
+
+.bg-red {
+    background-color: red;
+    color: white;
 }
 </style>
