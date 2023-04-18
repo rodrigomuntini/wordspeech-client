@@ -1,30 +1,46 @@
 <template>
     <div class="write">
-        <p>Qual palavra completa melhor a frase?</p>
-        <p class="phrase">{{ phrase }}
-            <button type="button" class="microphone-button" v-on:click="toggleRecording">
-                <img src="../assets/Img/mic.png" width="35">
-            </button>
-        </p>
-        <button type="button" class="item" v-for="(item, index) in items">{{ item }}</button>
-
+    <p class="question">Qual palavra completa melhor a frase?</p>
+    <p class="phrase">{{sentence.phrase}}
+        <button type="button" class="microphone-button" v-on:click="toggleRecording">
+            <img src="../assets/Img/mic.png" style="width:30px;height:30px; padding-left: 25%;">
+        </button>
+    </p>
+    <p class="question">Escolha a palavra correta:</p>
+        <button class="item">{{sentence.correct_word}}</button>
+        <button class="item">table</button>
+        <button class="item">jojo</button>
+        <button class="item">baby</button>
     </div>
 </template>
 
 <script>
 import $ from 'jquery'
 import RecordRTC from 'recordrtc'
+import 'bootstrap/dist/css/bootstrap.css';
+import 'bootstrap/dist/js/bootstrap.js';
 
 export default {
     name: 'LifeCycle',
     data() {
         return {
             phrase: "join the darkside of the ___",
-            items: ['table', 'join', 'force', 'cat']
+            items: ['table', 'join', 'force', 'cat'],
+            sentence: [],
         }
     },
     mounted() {
-        console.log('mounted')
+        $.ajax({
+        url: 'http://localhost:8000/api/sentences',
+        method: 'GET',
+        dataType: 'json',
+        success:(data) => {
+            this.sentence = data[0];
+        },
+        error: (error) => {
+            console.log(error);
+        },
+        });
     },
     methods: {
         toggleRecording() {
@@ -85,7 +101,11 @@ export default {
     font-size: 40px;
 }
 
-.phrase {
+.question{
+    font-size: 50px;
+}
+
+.phrase{
     border-radius: 10px;
     box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.5);
 }
@@ -97,7 +117,8 @@ export default {
     font-size: 50px;
     color: rgb(8, 68, 151);
     border-radius: 10px;
-    box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.5);
+	box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.5);
+    background-color: #fff;
 }
 
 .microphone-button {
