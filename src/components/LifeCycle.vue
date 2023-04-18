@@ -1,12 +1,12 @@
 <template>
     <div class="write">
-    <p class="question">Qual palavra completa melhor a frase?</p>
-    <p class="phrase">{{sentence.phrase}}
-        <button type="button" class="microphone-button" v-on:click="toggleRecording">
-            <img src="../assets/Img/mic.png" style="width:30px;height:30px; padding-left: 25%;">
-        </button>
-    </p>
-    <p class="question">Escolha a palavra correta:</p>
+        <p class="question">Qual palavra completa melhor a frase?</p>
+        <p class="phrase">{{ sentence.phrase }}
+            <button type="button" class="microphone-button" v-on:click="toggleRecording">
+                <img src="../assets/Img/mic.png" style="width:30px;height:30px; padding-left: 25%;">
+            </button>
+        </p>
+        <p class="question">Escolha a palavra correta:</p>
         <button class="item" v-for="item in items">{{ item }}</button>
     </div>
 </template>
@@ -27,21 +27,21 @@ export default {
     },
     mounted() {
         $.ajax({
-        url: 'http://localhost:5000/api/question',
-        method: 'GET',
-        dataType: 'json',
-        success:(data) => {
-            // Armazena a sentença (pergunta e resposta certa na variavel sentence)
-            this.sentence = data[0];
-            // Armazena as alternativas nos itens
-            this.items = data[1];
+            url: 'http://localhost:5000/api/question',
+            method: 'GET',
+            dataType: 'json',
+            success: (data) => {
+                // Armazena a sentença (pergunta e resposta certa na variavel sentence)
+                this.sentence = data[0];
+                // Armazena as alternativas nos itens
+                this.items = data[1];
 
-            // Faz o tratamento na frase da sentença para apresentar ____ em fez de $
-            this.sentence.phrase = this.sentence.phrase.replace(/\$/g, '___')
-        },
-        error: (error) => {
-            console.log(error);
-        },
+                // Faz o tratamento na frase da sentença para apresentar ____ em fez de $
+                this.sentence.phrase = this.sentence.phrase.replace(/\$/g, '___')
+            },
+            error: (error) => {
+                console.log(error);
+            },
         });
     },
     methods: {
@@ -66,8 +66,23 @@ export default {
                     });
                     this.recorder.startRecording();
                     this.isRecording = true;
+
+                    this.stopRecordingAfterDelay(5000);
                 });
             }
+        },
+        stopRecordingAfterDelay(delayMs) {
+            setTimeout(() => {
+                if (this.isRecording) {
+                    this.recorder.stopRecording(() => {
+                        this.audioBlob = this.recorder.getBlob();
+                        this.recorder.destroy();
+                        this.recorder = null;
+                        this.isRecording = false;
+                        this.saveRecording();
+                    });
+                }
+            }, delayMs);
         },
         saveRecording() {
             // envia a gravação para o servidor ou salva localmente
@@ -103,11 +118,11 @@ export default {
     font-size: 40px;
 }
 
-.question{
+.question {
     font-size: 50px;
 }
 
-.phrase{
+.phrase {
     border-radius: 10px;
     box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.5);
 }
@@ -119,7 +134,7 @@ export default {
     font-size: 50px;
     color: rgb(8, 68, 151);
     border-radius: 10px;
-	box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.5);
+    box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.5);
     background-color: #fff;
 }
 
