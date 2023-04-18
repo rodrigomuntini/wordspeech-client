@@ -29,7 +29,7 @@ body{
     background-color: #17a0e5;
     color: #fff;
     text-align: center;
-    font-family: sans-seri;
+    font-family: sans-serif;
     margin: 0px;
 
 }
