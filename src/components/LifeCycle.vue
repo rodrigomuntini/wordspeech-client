@@ -1,12 +1,13 @@
 <template>
     <div class="write">
+        <p class="score">Sua Pontuação: {{ $parent.score }}</p>
         <p class="question">Qual palavra completa melhor a frase?</p>
         <div class="error-message" v-if="show_error">
             <p>{{ error_message }}</p>
         </div>
         <p class="phrase">{{ sentence.phrase }}</p>
 
-        <p class="question">Fale a palavra correta:
+        <p class="question">Pronuncie a palavra correta:
         <div class="microphone-box">
             <button type="button" v-bind:class="{ 'recording': isRecording }" class="microphone-button"
                 v-on:click="toggleRecording">
@@ -33,8 +34,8 @@
 <script>
 import $ from 'jquery'
 import RecordRTC from 'recordrtc'
-import 'bootstrap/dist/css/bootstrap.css';
-import 'bootstrap/dist/js/bootstrap.js';
+import 'bootstrap/dist/css/bootstrap.css'
+import 'bootstrap/dist/js/bootstrap.js'
 
 export default {
     name: 'LifeCycle',
@@ -47,7 +48,8 @@ export default {
             is_correct: false,
             is_incorrect: false,
             current_text: "",
-            isRecording: false
+            isRecording: false,
+            score: 0
         }
     },
     mounted() {
@@ -57,29 +59,29 @@ export default {
             dataType: 'json',
             success: (data) => {
                 // Armazena a sentença (pergunta e resposta certa na variavel sentence)
-                this.sentence = data[0];
+                this.sentence = data[0]
                 // Armazena as alternativas nos itens
-                this.items = data[1];
+                this.items = data[1]
 
                 // Faz o tratamento na frase da sentença para apresentar ____ em fez de $
                 this.sentence.phrase = this.sentence.phrase.replace(/\$/g, '___')
             },
             error: (error) => {
-                console.log(error);
+                console.log(error)
             },
-        });
+        })
     },
     methods: {
         toggleRecording() {
             if (this.isRecording) {
                 // parar a gravação
                 this.recorder.stopRecording(() => {
-                    this.audioBlob = this.recorder.getBlob();
-                    this.recorder.destroy();
-                    this.recorder = null;
-                    this.isRecording = false;
-                    this.saveRecording();
-                });
+                    this.audioBlob = this.recorder.getBlob()
+                    this.recorder.destroy()
+                    this.recorder = null
+                    this.isRecording = false
+                    this.saveRecording()
+                })
             } else {
                 // iniciar a gravação
                 navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
@@ -88,34 +90,34 @@ export default {
                         mimeType: 'audio/webm',
                         recorderType: RecordRTC.StereoAudioRecorder,
                         desiredSampRate: 16000,
-                    });
-                    this.recorder.startRecording();
-                    this.isRecording = true;
+                    })
+                    this.recorder.startRecording()
+                    this.isRecording = true
 
                     this.show_error = false
                     this.error_message = "Error"
 
-                    this.stopRecordingAfterDelay(5000);
-                });
+                    this.stopRecordingAfterDelay(5000)
+                })
             }
         },
         stopRecordingAfterDelay(delayMs) {
             setTimeout(() => {
                 if (this.isRecording) {
                     this.recorder.stopRecording(() => {
-                        this.audioBlob = this.recorder.getBlob();
-                        this.recorder.destroy();
-                        this.recorder = null;
-                        this.isRecording = false;
-                        this.saveRecording();
-                    });
+                        this.audioBlob = this.recorder.getBlob()
+                        this.recorder.destroy()
+                        this.recorder = null
+                        this.isRecording = false
+                        this.saveRecording()
+                    })
                 }
-            }, delayMs);
+            }, delayMs)
         },
         saveRecording() {
             // envia a gravação para o servidor ou salva localmente
-            const formData = new FormData();
-            formData.append('audio', this.audioBlob, 'recording.webm');
+            const formData = new FormData()
+            formData.append('audio', this.audioBlob, 'recording.webm')
             // faça uma requisição AJAX para enviar o arquivo para o servidor
 
             $.ajax({
@@ -125,31 +127,81 @@ export default {
                 processData: false,
                 contentType: false,
                 success: (data) => {
-                    console.log('Arquivo enviado com sucesso!');
-                    this.judgeQuestion(data)
+                    console.log('Arquivo enviado com sucesso!')
+                    console.log(data)
+
+                    if (typeof (data) == 'object' && Object.keys(data).length != 0) {
+                        let word = ""
+                        let status = false
+
+                        // Olha cada uma das opções e diz se é valido ou nao
+                        data['alternative'].forEach((alternative) => {
+                            console.log(alternative.transcript)
+                            let value = this.judgeQuestion(alternative.transcript);
+                            console.log(value)
+
+                            // Se o valor vir nulo, a palavra era invalida
+                            // Se o status vier false, significa que a palavra está mas é errada
+                            // Se o status vier true, significa que a palavra está e é certa
+                            // No último, caso, o if vai parar de executar, pois status = true
+                            if (value != null && status == false) {
+                                status = value[0]
+                                word = value[1]
+                            }
+                        })
+
+                        // Se word for diferente de "", significa que ele encontrou uma palavra da lista  
+                        if (word != "") {
+                            if (status) {
+                                this.is_correct = true
+                                this.is_incorrect = false
+
+                                setTimeout(() => {
+                                    this.$root.counter++
+                                    this.$root.showComponent = false
+                                    this.$nextTick(() => {
+                                        this.$root.showComponent = true
+                                    })
+                                }, 3000)
+
+                                this.$root.score++
+                            } else {
+                                this.is_correct = false
+                                this.is_incorrect = true
+                                this.current_text = word.toLowerCase()
+                                
+                                setTimeout(() => {
+                                    this.$root.counter++
+                                    this.$root.showComponent = false
+                                    this.$nextTick(() => {
+                                        this.$root.showComponent = true
+                                    })
+                                }, 3000)
+
+                            }
+                        } else {
+                            this.show_error = true
+                            this.error_message = "Erro: Palavra não identificada. Tente novamente!"
+                        }
+                    } else { // Significa que nao entendeu nenhuma palavra
+                        this.show_error = true
+                        this.error_message = "Erro: Palavra não identificada. Tente novamente!"
+                    }
                 },
                 error: (error) => {
-                    console.error('Erro ao enviar arquivo:', error);
+                    console.error('Erro ao enviar arquivo:', error)
                 },
-            });
+            })
         },
-        judgeQuestion(text) {
-            if (this.items.includes(text)) { // Significa que a palavra está incluída entre as 4 opções
-                // Reseta as mensagens de erro
-                this.show_error = false
-                this.error_message = "Error"
-
-                if (text.toLowerCase() == this.sentence.correct_word.toLowerCase()) { // Verifica se valou a palavra certa
-                    this.is_correct = true;
-                    this.is_incorrect = false;
+        judgeQuestion(alternative) {
+            if (this.items.includes(alternative.toLowerCase())) { // Significa que a palavra está incluída entre as 4 opções
+                if (alternative.toLowerCase() == this.sentence.correct_word.toLowerCase()) { // Verifica se valou a palavra certa
+                    return [true, alternative]
                 } else {
-                    this.is_correct = false;
-                    this.is_incorrect = true;
-                    this.current_text = text;
+                    return [false, alternative]
                 }
             } else {
-                this.show_error = true
-                this.error_message = "Erro: Palavra não identificada"
+                return null
             }
         }
     },
@@ -167,6 +219,10 @@ export default {
 
 .question {
     font-size: 30px;
+}
+
+.score {
+    font-size: 20px;
 }
 
 .phrase {

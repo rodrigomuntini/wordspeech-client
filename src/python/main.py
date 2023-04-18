@@ -77,7 +77,7 @@ def make_speech_recognition():
 
         try:
             # Usa o Google Speech Recognition para reconhecer a fala
-            text = r.recognize_google(audio, language='en')
+            text = r.recognize_google(audio, language='en', show_all=True)
             return text
         except sr.UnknownValueError:
             return 'Não foi possível reconhecer a fala'
@@ -115,7 +115,7 @@ def generate_options(word):
         random_word = random.choice(all_words)
         if random_word != word and random_word not in synonyms and random_word not in antonyms and "'" not in random_word and "_" not in random_word:
             # ignora palavras menos frequentes
-            if all_words.index(random_word) < 5000:
+            if all_words.index(random_word) < 1000 and all_words.index(random_word) > 300:
                 random_words.append(random_word)
 
     # adicionar a palavra fixa em uma posição aleatória na lista
