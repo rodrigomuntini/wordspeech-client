@@ -11,7 +11,7 @@
             <button class="my-button" v-on:click="startTest">Iniciar Teste</button>
         </div>
         <div class="box" v-if="showComponent && counter < 5">
-            <LifeCycle />
+            <WordSpeech />
         </div>
         <div class="box" v-if="counter == 5">
             <p class="score">Parabéns! Você acertou {{ score }}/5!</p>
@@ -21,11 +21,11 @@
 </template>
 
 <script>
-import LifeCycle from './components/LifeCycle.vue';
+import WordSpeech from './components/WordSpeech.vue';
 export default {
     name: 'App',
     components: {
-        LifeCycle
+        WordSpeech
     },
     data() {
         return {

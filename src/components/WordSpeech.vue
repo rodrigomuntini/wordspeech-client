@@ -38,7 +38,7 @@ import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap/dist/js/bootstrap.js'
 
 export default {
-    name: 'LifeCycle',
+    name: 'WordSpeech',
     data() {
         return {
             items: ['...', '...', '...', '...'],
@@ -54,7 +54,7 @@ export default {
     },
     mounted() {
         $.ajax({
-            url: 'http://localhost:5000/api/question',
+            url: 'http://127.0.0.1:5000/api/question',
             method: 'GET',
             dataType: 'json',
             success: (data) => {
@@ -97,7 +97,7 @@ export default {
                     this.show_error = false
                     this.error_message = "Error"
 
-                    this.stopRecordingAfterDelay(5000)
+                    this.stopRecordingAfterDelay(3000)
                 })
             }
         },
@@ -121,7 +121,7 @@ export default {
             // faça uma requisição AJAX para enviar o arquivo para o servidor
 
             $.ajax({
-                url: 'http://localhost:5000/api/recognition',
+                url: 'http://127.0.0.1:5000/api/recognition',
                 type: 'POST',
                 data: formData,
                 processData: false,
